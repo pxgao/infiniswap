@@ -1,36 +1,19 @@
-SHELL = /bin/sh
-INSTALL = /usr/bin/install -c
-mkdir_p = mkdir -p
-VERSION = 0.0
-build_dir = /lib/modules/$(shell uname -r)
+ifneq ($(KERNELRELEASE),)
+    # kbuild part of makefile
+obj-m  := infiniswap.o
+infiniswap-y := is_configfs.o is_mq.o is_main.o
+ccflags-y=-I/usr/src/mlnx-ofed-kernel-3.2/include/ -I./init
 
-ismoduledir = /lib/modules/$(shell uname -r)/extra/infiniswap
-ismodule := infiniswap.ko
-issrc := ./
-nbdxadm := nbdxadm
+else
+    KDIR ?= /lib/modules/`uname -r`/build
 
-all: all-spec
+PWD := $(shell pwd)
 
-install: all
-	$(mkdir_p) $(DESTDIR)$(ismoduledir)
-	$(INSTALL) -m 644 $(issrc)/$(ismodule) $(DESTDIR)$(ismoduledir)/$(ismodule)
-	-/sbin/depmod -a
-	-\cp $(nbdxadm)/nbdxadm /usr/local/bin/
-
-uninstall:
-	rm -f $(DESTDIR)$(ismoduledir)/$(ismodule)
-	-/sbin/depmod -a
-	-rm -f /usr/local/bin/nbdxadm
+make:
+	rm *.o *.ko *.mod.c;$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
 
 clean:
-	$(MAKE) -C $(build_dir)/build SUBDIRS=`pwd` clean
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) clean
 
-obj-m := infiniswap.o
 
-infiniswap-objs := 	\
-	is_configfs.o	\
-	is_mq.o	\
-	is_main.o
-
-all-spec:
-	$(MAKE) -C $(build_dir)/build SUBDIRS=`pwd`  modules
+endif

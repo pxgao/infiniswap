@@ -186,7 +186,7 @@ struct raio_io_u {
 
 //backup disk / swap space  size (GB)
 #define STACKBD_SIZE_G	12
-#define BACKUP_DISK	"/dev/sda4"
+#define BACKUP_DISK	"/dev/sdb"
 //how may pages can be added into a single bio (128KB = 32 x 4KB)
 #define BIO_PAGE_CAP	32
 
